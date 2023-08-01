@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Track Announcer</string>
+    <string name="service_notifications">Service Notifications</string>
 </resources>
