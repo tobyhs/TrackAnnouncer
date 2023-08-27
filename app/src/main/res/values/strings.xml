@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Track Announcer</string>
     <string name="service_notifications">Service Notifications</string>
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
     <string name="tts_init_failure">Track Announcer: Failed to initialize TextToSpeech</string>
 </resources>
