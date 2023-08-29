@@ -3,6 +3,7 @@ package io.github.tobyhs.trackannouncer
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
@@ -53,9 +54,13 @@ class TrackAnnouncerService : Service() {
             NotificationManager.IMPORTANCE_DEFAULT
         )
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        val contentIntent = PendingIntent.getActivity(
+            this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
+        )
         val notification = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
+            .setContentIntent(contentIntent)
             .build()
         startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     }

@@ -1,6 +1,7 @@
 package io.github.tobyhs.trackannouncer
 
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Intent
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
@@ -43,6 +44,12 @@ class TrackAnnouncerServiceTest {
             val channelId = notification.notification.channelId
             assertThat(channelId, equalTo(TrackAnnouncerService.NOTIFICATION_CHANNEL_ID))
             assertThat(notification.isOngoing, equalTo(true))
+
+            val contentIntent = shadowOf(notification.notification.contentIntent).savedIntent
+            assertThat(
+                contentIntent.component,
+                equalTo(ComponentName(service, MainActivity::class.java))
+            )
         }
     }
 
