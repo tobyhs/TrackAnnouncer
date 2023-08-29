@@ -57,10 +57,19 @@ class TrackAnnouncerService : Service() {
         val contentIntent = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
         )
+        val stopServiceIntent = PendingIntent.getActivity(
+            this, 0, Intent(this, StopServiceActivity::class.java), PendingIntent.FLAG_IMMUTABLE
+        )
+        val stopServiceAction = Notification.Action.Builder(
+            null,
+            getString(R.string.stop_service),
+            stopServiceIntent
+        ).build()
         val notification = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .setContentIntent(contentIntent)
+            .addAction(stopServiceAction)
             .build()
         startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     }

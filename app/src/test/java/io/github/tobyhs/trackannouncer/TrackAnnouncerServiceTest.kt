@@ -50,6 +50,14 @@ class TrackAnnouncerServiceTest {
                 contentIntent.component,
                 equalTo(ComponentName(service, MainActivity::class.java))
             )
+            assertThat(notification.notification.actions.size, equalTo(1))
+            val action = notification.notification.actions.first()
+            assertThat(action.title, equalTo("Stop Service"))
+            val actionIntent = shadowOf(action.actionIntent).savedIntent
+            assertThat(
+                actionIntent.component,
+                equalTo(ComponentName(service, StopServiceActivity::class.java))
+            )
         }
     }
 
