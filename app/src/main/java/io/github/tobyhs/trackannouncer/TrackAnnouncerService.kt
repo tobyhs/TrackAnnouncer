@@ -94,5 +94,8 @@ class TrackAnnouncerService : Service() {
             sessionsChangedListener,
             listenerComponent
         )
+        sessionsChangedListener.onActiveSessionsChanged(
+            mediaSessionManager.getActiveSessions(listenerComponent)
+        )
     }
 }

@@ -2,10 +2,13 @@ package io.github.tobyhs.trackannouncer
 
 import android.app.NotificationManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.speech.tts.TextToSpeech
+
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 
 import io.mockk.justRun
 import io.mockk.mockk
@@ -77,13 +80,20 @@ class TrackAnnouncerServiceTest {
 
     @Test
     fun `onCreate adds a SessionsChangedListener to the MediaSessionManager`() {
-        runService { service ->
-            val msmShadow = shadowOf(service.getSystemService(MediaSessionManager::class.java))
-            val controller: MediaController = mockk()
-            justRun { controller.registerCallback(any()) }
-            justRun { controller.unregisterCallback(any()) }
-            msmShadow.addController(controller)
-            verify { controller.registerCallback(ofType(MetadataChangedCallback::class)) }
+        val app = getApplicationContext<Context>()
+        val msmShadow = shadowOf(app.getSystemService(MediaSessionManager::class.java))
+        val controller1: MediaController = mockk()
+        justRun { controller1.registerCallback(any()) }
+        justRun { controller1.unregisterCallback(any()) }
+        msmShadow.addController(controller1)
+
+        runService {
+            verify { controller1.registerCallback(ofType(MetadataChangedCallback::class)) }
+            val controller2: MediaController = mockk()
+            justRun { controller2.registerCallback(any()) }
+            justRun { controller2.unregisterCallback(any()) }
+            msmShadow.addController(controller2)
+            verify { controller2.registerCallback(ofType(MetadataChangedCallback::class)) }
         }
     }
 
