@@ -66,7 +66,7 @@ class TrackAnnouncerService : Service() {
             stopServiceIntent
         ).build()
         val notification = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setOngoing(true)
             .setContentIntent(contentIntent)
             .addAction(stopServiceAction)
