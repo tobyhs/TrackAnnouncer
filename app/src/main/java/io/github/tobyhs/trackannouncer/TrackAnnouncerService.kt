@@ -11,6 +11,7 @@ import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.media.AudioManager
 import android.media.session.MediaSessionManager
 import android.os.IBinder
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.widget.Toast
 
@@ -25,6 +26,7 @@ class TrackAnnouncerService : Service() {
         internal const val NOTIFICATION_CHANNEL_ID = "service"
     }
 
+    private lateinit var notificationManager: NotificationManager
     private lateinit var audioManager: AudioManager
     @VisibleForTesting internal lateinit var textToSpeech: TextToSpeech
     private lateinit var mediaSessionManager: MediaSessionManager
@@ -32,6 +34,18 @@ class TrackAnnouncerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        notificationManager = getSystemService(NotificationManager::class.java)
+        val listenerComponent = ComponentName(this, NotificationListener::class.java)
+        if (!notificationManager.isNotificationListenerAccessGranted(listenerComponent)) {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            })
+            Toast.makeText(this, R.string.grant_notification_access, Toast.LENGTH_SHORT).show()
+            stopSelf()
+            return
+        }
+
         foregroundSelf()
         audioManager = getSystemService(AudioManager::class.java)
         initTextToSpeech()
@@ -41,9 +55,11 @@ class TrackAnnouncerService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onDestroy() {
-        mediaSessionManager.removeOnActiveSessionsChangedListener(sessionsChangedListener)
-        sessionsChangedListener.unregisterCallbacks()
-        textToSpeech.shutdown()
+        if (::textToSpeech.isInitialized) {
+            mediaSessionManager.removeOnActiveSessionsChangedListener(sessionsChangedListener)
+            sessionsChangedListener.unregisterCallbacks()
+            textToSpeech.shutdown()
+        }
         super.onDestroy()
     }
 
@@ -53,7 +69,7 @@ class TrackAnnouncerService : Service() {
             getString(R.string.service_notifications),
             NotificationManager.IMPORTANCE_DEFAULT
         )
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        notificationManager.createNotificationChannel(channel)
         val contentIntent = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
         )

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -18,6 +19,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,6 +31,39 @@ import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
 class TrackAnnouncerServiceTest {
+    private val app = getApplicationContext<Context>()
+    private val notificationManagerShadow = shadowOf(
+        app.getSystemService(NotificationManager::class.java)
+    )
+    private val notificationListenerComponent = ComponentName(app, NotificationListener::class.java)
+
+    @Before
+    fun setup() {
+        notificationManagerShadow.setNotificationListenerAccessGranted(
+            notificationListenerComponent,
+            true
+        )
+    }
+
+    @Test
+    fun `onCreate when notification access is not granted`() {
+        notificationManagerShadow.setNotificationListenerAccessGranted(
+            notificationListenerComponent,
+            false
+        )
+        runService { service ->
+            val serviceShadow = shadowOf(service)
+            val nextActivity = serviceShadow.nextStartedActivity
+            assertThat(nextActivity.action, equalTo(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            assertThat(nextActivity.flags, equalTo(Intent.FLAG_ACTIVITY_NEW_TASK))
+
+            val lastToastText = ShadowToast.getTextOfLatestToast()
+            assertThat(lastToastText, equalTo("Grant Track Announcer notification access"))
+
+            assertThat(serviceShadow.isStoppedBySelf, equalTo(true))
+        }
+    }
+
     @Test
     fun `onCreate foregrounds itself`() {
         runService { service ->
@@ -80,7 +115,6 @@ class TrackAnnouncerServiceTest {
 
     @Test
     fun `onCreate adds a SessionsChangedListener to the MediaSessionManager`() {
-        val app = getApplicationContext<Context>()
         val msmShadow = shadowOf(app.getSystemService(MediaSessionManager::class.java))
         val controller1: MediaController = mockk()
         justRun { controller1.registerCallback(any()) }
