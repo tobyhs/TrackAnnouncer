@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Track Announcer"
 
-include ':app'
+include(":app")
