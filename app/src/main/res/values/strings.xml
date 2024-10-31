@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Track Announcer</string>
     <string name="grant_notification_access">Grant Track Announcer notification access</string>
+    <string name="notification_listener_access_prompt">Grant the app notification access so it can read media player notifications to detect when a new track starts playing.</string>
     <string name="service_notifications">Service Notifications</string>
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>

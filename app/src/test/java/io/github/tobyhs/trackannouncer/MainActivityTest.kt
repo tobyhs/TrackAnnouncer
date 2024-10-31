@@ -14,7 +14,9 @@ import androidx.test.espresso.intent.Intents.getIntents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.rule.IntentsRule
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 import org.hamcrest.CoreMatchers.equalTo
@@ -22,6 +24,7 @@ import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.emptyIterable
 
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,17 +42,25 @@ class MainActivityTest {
     )
     private val serviceComponent = ComponentName(app, TrackAnnouncerService::class.java)
 
+    @Before
+    fun setup() {
+        val component = ComponentName(app, NotificationListener::class.java)
+        notificationManagerShadow.setNotificationListenerAccessGranted(component, true)
+        notificationManagerShadow.setNotificationsEnabled(true)
+    }
+
     @Test
     fun `notification listener access not granted`() {
+        val component = ComponentName(app, NotificationListener::class.java)
+        notificationManagerShadow.setNotificationListenerAccessGranted(component, false)
         launch(MainActivity::class.java).use {
+            onView(withText(android.R.string.ok)).inRoot(isDialog()).perform(click())
             intended(hasAction(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
     }
 
     @Test
     fun `notification listener access is granted`() {
-        val component = ComponentName(app, NotificationListener::class.java)
-        notificationManagerShadow.setNotificationListenerAccessGranted(component, true)
         launch(MainActivity::class.java).use {
             assertThat(getIntents(), emptyIterable())
         }
@@ -68,7 +79,6 @@ class MainActivityTest {
 
     @Test
     fun `notifications are enabled`() {
-        notificationManagerShadow.setNotificationsEnabled(true)
         launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 assertThat(shadowOf(activity).lastRequestedPermission, nullValue())
