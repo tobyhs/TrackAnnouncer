@@ -59,7 +59,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    val espressoVersion = "3.6.1"
+    testImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
+    testImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.robolectric:robolectric:4.11.1")
