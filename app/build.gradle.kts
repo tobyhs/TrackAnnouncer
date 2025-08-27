@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "io.github.tobyhs.trackannouncer"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.tobyhs.trackannouncer"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -64,5 +64,5 @@ dependencies {
     testImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("org.robolectric:robolectric:4.16")
 }
