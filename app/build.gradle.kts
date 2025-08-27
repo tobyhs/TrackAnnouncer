@@ -56,13 +56,13 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
 
     testImplementation("junit:junit:4.13.2")
-    val espressoVersion = "3.6.1"
+    val espressoVersion = "3.7.0"
     testImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
     testImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
-    testImplementation("androidx.test.ext:junit:1.2.1")
-    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("androidx.test.ext:junit:1.3.0")
+    testImplementation("io.mockk:mockk:1.14.5")
     testImplementation("org.robolectric:robolectric:4.16")
 }
