@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -41,11 +40,8 @@ android {
     }
 
     buildFeatures {
+        resValues = true
         viewBinding = true
-    }
-
-    kotlin {
-        jvmToolchain(21)
     }
 
     testOptions {
