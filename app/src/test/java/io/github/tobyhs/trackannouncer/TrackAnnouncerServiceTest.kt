@@ -75,27 +75,26 @@ class TrackAnnouncerServiceTest {
             assertThat(channel.name.toString(), equalTo("Service Notifications"))
             assertThat(channel.importance, equalTo(NotificationManager.IMPORTANCE_DEFAULT))
 
-            val notifications = notificationManager.activeNotifications
-            assertThat(notifications.size, equalTo(1))
-            val notification = notifications.first()
-            assertThat(notification.id, equalTo(TrackAnnouncerService.NOTIFICATION_ID))
-            val channelId = notification.notification.channelId
+            val sbNotifications = notificationManager.activeNotifications
+            assertThat(sbNotifications.size, equalTo(1))
+            val sbNotification = sbNotifications.first()
+            assertThat(sbNotification.id, equalTo(TrackAnnouncerService.NOTIFICATION_ID))
+            val notification = sbNotification.notification
+            val channelId = notification.channelId
             assertThat(channelId, equalTo(TrackAnnouncerService.NOTIFICATION_CHANNEL_ID))
-            assertThat(notification.isOngoing, equalTo(true))
+            assertThat(sbNotification.isOngoing, equalTo(true))
 
-            val contentIntent = shadowOf(notification.notification.contentIntent).savedIntent
-            assertThat(
-                contentIntent.component,
-                equalTo(ComponentName(service, MainActivity::class.java))
-            )
-            assertThat(notification.notification.actions.size, equalTo(1))
-            val action = notification.notification.actions.first()
+            val contentIntent = shadowOf(notification.contentIntent).savedIntent
+            assertThat(shadowOf(contentIntent).intentClass, equalTo(MainActivity::class.java))
+
+            assertThat(notification.actions.size, equalTo(1))
+            val action = notification.actions.first()
             assertThat(action.title, equalTo("Stop Service"))
             val actionIntent = shadowOf(action.actionIntent).savedIntent
-            assertThat(
-                actionIntent.component,
-                equalTo(ComponentName(service, StopServiceActivity::class.java))
-            )
+            assertThat(shadowOf(actionIntent).intentClass, equalTo(StopServiceReceiver::class.java))
+
+            val deleteIntent = shadowOf(notification.deleteIntent).savedIntent
+            assertThat(shadowOf(deleteIntent).intentClass, equalTo(StopServiceReceiver::class.java))
         }
     }
 
