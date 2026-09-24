@@ -72,6 +72,6 @@ dependencies {
     testImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
     testImplementation("androidx.test.espresso:espresso-intents:$espressoVersion")
     testImplementation("androidx.test.ext:junit:1.3.0")
-    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("io.mockk:mockk:1.14.11")
     testImplementation("org.robolectric:robolectric:4.17")
 }
