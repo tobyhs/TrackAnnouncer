@@ -13,7 +13,6 @@ import io.mockk.verify
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -25,11 +24,6 @@ class MetadataChangedCallbackTest {
     private val audioManager: AudioManager = mockk()
     private val callback = MetadataChangedCallback(textToSpeech, audioManager)
 
-    @Before
-    fun setup() {
-        every { audioManager.isMusicActive } returns true
-    }
-
     @Test
     fun `onMetadataChanged with null MediaMetadata`() {
         callback.onMetadataChanged(null)
@@ -39,16 +33,6 @@ class MetadataChangedCallbackTest {
     @Test
     fun `onMetadataChanged with no title`() {
         callback.onMetadataChanged(MediaMetadata.Builder().build())
-        checkNoActionsTaken()
-    }
-
-    @Test
-    fun `onMetadataChanged with no music active`() {
-        every { audioManager.isMusicActive } returns false
-        val title = "Some Title"
-        val metadata = MediaMetadata.Builder()
-            .putString(MediaMetadata.METADATA_KEY_TITLE, title).build()
-        callback.onMetadataChanged(metadata)
         checkNoActionsTaken()
     }
 

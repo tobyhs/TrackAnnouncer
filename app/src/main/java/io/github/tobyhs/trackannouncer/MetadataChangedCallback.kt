@@ -18,7 +18,7 @@ class MetadataChangedCallback(
     override fun onMetadataChanged(metadata: MediaMetadata?) {
         metadata ?: return
         val title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE) ?: return
-        if (title == lastTitle || !audioManager.isMusicActive) {
+        if (title == lastTitle) {
             return
         }
         lastTitle = title
