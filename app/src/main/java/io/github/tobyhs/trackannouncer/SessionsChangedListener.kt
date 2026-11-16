@@ -15,6 +15,7 @@ class SessionsChangedListener(
         controllers ?: return
         unregisterCallbacks()
         this.controllers = controllers
+        metadataChangedCallback.mediaControllers = controllers
         for (controller in controllers) {
             controller.registerCallback(metadataChangedCallback)
         }
@@ -24,6 +25,7 @@ class SessionsChangedListener(
      * Unregisters the [MetadataChangedCallback] on the most recent active sessions
      */
     fun unregisterCallbacks() {
+        metadataChangedCallback.mediaControllers = emptyList()
         for (controller in controllers) {
             controller.unregisterCallback(metadataChangedCallback)
         }

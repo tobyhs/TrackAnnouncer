@@ -13,14 +13,21 @@ class MetadataChangedCallback(
     private val textToSpeech: TextToSpeech,
     private val audioManager: AudioManager,
 ) : MediaController.Callback() {
+    /** [MediaController] objects with active sessions */
+    var mediaControllers: List<MediaController> = emptyList()
+
     private var lastTitle: String? = null
 
     override fun onMetadataChanged(metadata: MediaMetadata?) {
+        if (mediaControllers.none { it.playbackState?.isActive ?: false }) {
+            return
+        }
         metadata ?: return
         val title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE) ?: return
         if (title == lastTitle) {
             return
         }
+
         lastTitle = title
         audioManager.dispatchMediaKeyEvent(
             KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)

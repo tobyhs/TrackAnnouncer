@@ -2,6 +2,8 @@ package io.github.tobyhs.trackannouncer
 
 import android.media.AudioManager
 import android.media.MediaMetadata
+import android.media.session.MediaController
+import android.media.session.PlaybackState
 import android.speech.tts.TextToSpeech
 import android.view.KeyEvent
 
@@ -13,6 +15,7 @@ import io.mockk.verify
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -22,7 +25,25 @@ import org.robolectric.RobolectricTestRunner
 class MetadataChangedCallbackTest {
     private val textToSpeech: TextToSpeech = mockk()
     private val audioManager: AudioManager = mockk()
+    private val playbackState: PlaybackState = mockk()
     private val callback = MetadataChangedCallback(textToSpeech, audioManager)
+
+    @Before
+    fun setup() {
+        val otherMediaController: MediaController = mockk()
+        every { otherMediaController.playbackState } returns null
+        every { playbackState.isActive } returns true
+        val mediaController: MediaController = mockk()
+        every { mediaController.playbackState } returns playbackState
+        callback.mediaControllers = listOf(otherMediaController, mediaController)
+    }
+
+    @Test
+    fun `onMetadataChanged with no active playback states`() {
+        every { playbackState.isActive } returns false
+        callback.onMetadataChanged(createMediaMetadata("Some title"))
+        checkNoActionsTaken()
+    }
 
     @Test
     fun `onMetadataChanged with null MediaMetadata`() {
@@ -39,8 +60,7 @@ class MetadataChangedCallbackTest {
     @Test
     fun `onMetadataChanged with same title twice`() {
         val title = "Some Title"
-        val metadata = MediaMetadata.Builder()
-            .putString(MediaMetadata.METADATA_KEY_TITLE, title).build()
+        val metadata = createMediaMetadata(title)
         val keyEvents: MutableList<KeyEvent> = mutableListOf()
         justRun { audioManager.dispatchMediaKeyEvent(capture(keyEvents)) }
         every { textToSpeech.speak(any(), any(), any(), any()) } returns TextToSpeech.SUCCESS
@@ -57,9 +77,7 @@ class MetadataChangedCallbackTest {
     @Test
     fun `onMetadataChanged with 2 different titles`() {
         val titles = listOf("First Title", "Second Title")
-        val metadataList = titles.map {
-            MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, it).build()
-        }
+        val metadataList = titles.map { createMediaMetadata(it) }
         val keyEvents: MutableList<KeyEvent> = mutableListOf()
         justRun { audioManager.dispatchMediaKeyEvent(capture(keyEvents)) }
         every { textToSpeech.speak(any(), any(), any(), any()) } returns TextToSpeech.SUCCESS
@@ -76,6 +94,9 @@ class MetadataChangedCallbackTest {
             verify(exactly = 1) { textToSpeech.speak(title, TextToSpeech.QUEUE_FLUSH, null, title) }
         }
     }
+
+    private fun createMediaMetadata(title: String): MediaMetadata =
+        MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title).build()
 
     private fun checkNoActionsTaken() {
         verify(exactly = 0) { audioManager.dispatchMediaKeyEvent(any()) }

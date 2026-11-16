@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.tobyhs.trackannouncer"
-        minSdk = 29
+        minSdk = 31
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"

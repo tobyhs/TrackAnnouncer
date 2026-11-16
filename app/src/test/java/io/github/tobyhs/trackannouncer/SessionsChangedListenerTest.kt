@@ -7,11 +7,17 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 
+import org.junit.Before
 import org.junit.Test
 
 class SessionsChangedListenerTest {
     private val metadataChangedCallback: MetadataChangedCallback = mockk()
     private val listener = SessionsChangedListener(metadataChangedCallback)
+
+    @Before
+    fun setup() {
+        justRun { metadataChangedCallback.mediaControllers = any() }
+    }
 
     @Test
     fun `onActiveSessionsChanged with null controllers`() {
@@ -32,6 +38,7 @@ class SessionsChangedListenerTest {
         for (c in allControllers) { justRun { c.registerCallback(any()) } }
 
         listener.onActiveSessionsChanged(firstControllers)
+        verify { metadataChangedCallback.mediaControllers = firstControllers }
         for (c in firstControllers) {
             verify { c.registerCallback(metadataChangedCallback) }
             clearMocks(c)
@@ -40,6 +47,7 @@ class SessionsChangedListenerTest {
         for (c in firstControllers) { justRun { c.unregisterCallback(any()) } }
         listener.onActiveSessionsChanged(secondControllers)
         for (c in firstControllers) { verify { c.unregisterCallback(metadataChangedCallback) } }
+        verify { metadataChangedCallback.mediaControllers = secondControllers }
         for (c in secondControllers) { verify { c.registerCallback(metadataChangedCallback) } }
     }
 
@@ -53,6 +61,8 @@ class SessionsChangedListenerTest {
 
         listener.onActiveSessionsChanged(controllers)
         listener.unregisterCallbacks()
+
+        verify { metadataChangedCallback.mediaControllers = emptyList() }
         for (c in controllers) { verify { c.unregisterCallback(metadataChangedCallback) } }
     }
 }
